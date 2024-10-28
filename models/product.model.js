@@ -13,6 +13,11 @@ class ProductModel {
         return await query(sql, [...values]);
     }
 
+    findSale = async (params = {}) => {
+        let sql = `SELECT CONVERT(products.id, NCHAR) id, CONVERT(products.category_id, NCHAR) category_id, title, slug, picture, summary, description, sales, price, created_by FROM ${this.tableProductName} WHERE products.sales IS NOT NULL`;
+        return await query(sql);
+    }
+
     findOne = async (params) => {
         const { columnSet, values } = multipleColumnSet(params)
         const sql = `SELECT CONVERT(products.id, NCHAR) id, CONVERT(products.category_id, NCHAR) category_id, title, slug, picture, summary, description, price, created_by FROM ${this.tableProductName}
@@ -21,12 +26,12 @@ class ProductModel {
         return result[0];
     }
 
-    create = async ({ category_id = null, title, slug = null, picture = null, summary = null, description = null, price = 0, created_by = null }) => {
+    create = async ({ category_id = null, title, slug = null, picture = null, summary = null, description = null, price = 0, created_by = null, sales = 0 }) => {
         const sql = `INSERT INTO ${this.tableProductName}
-        (id, category_id, title, slug, picture, summary, description, price, created_by) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`;
+        (id, category_id, title, slug, picture, summary, description, price, created_by, sales) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
         try {
             const idProduct = uuidv4();
-            await query(sql, [idProduct, category_id, title, slug, picture, summary, description, price, created_by]);
+            await query(sql, [idProduct, category_id, title, slug, picture, summary, description, price, created_by, sales]);
             return idProduct;
         } catch (error) {
             return null

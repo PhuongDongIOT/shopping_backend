@@ -6,7 +6,7 @@ class CategoryModel {
     tableCategory = 'categories';
 
     find = async (params = {}) => {
-        let sql = `SELECT CONVERT(categories.id, NCHAR) id, CONVERT(categories.parent_category, NCHAR) parent_category, slug, name, description FROM ${this.tableCategory}`;
+        let sql = `SELECT CONVERT(categories.id, NCHAR) id, CONVERT(categories.parent_category, NCHAR) parent_category, slug, name, description, picture FROM ${this.tableCategory}`;
         if (!Object.keys(params).length) return await query(sql);
         const { columnSet, values } = multipleColumnSet(params)
         sql += ` WHERE ${columnSet}`;
@@ -21,16 +21,14 @@ class CategoryModel {
         return result[0];
     }
 
-    create = async ({ parent_category = null, slug = null, name, description = null }) => {
+    create = async ({ parent_category = null, slug = null, name, description = null, picture = null }) => {
         const sqlCategory = `INSERT INTO ${this.tableCategory}
-        (id, parent_category, slug, name, description) VALUES (?, ?, ?, ?, ?)`;
+        (id, parent_category, slug, name, description, picture) VALUES (?, ?, ?, ?, ?, ?)`;
         try {
             const idCategory = uuidv4();
-            await query(sqlCategory, [idCategory, parent_category, slug, name, description]);
+            await query(sqlCategory, [idCategory, parent_category, slug, name, description, picture]);
             return idCategory;
-        } catch (error) {
-            console.log(error);
-            
+        } catch (error) {           
             return null
         }
     }

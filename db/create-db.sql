@@ -4,6 +4,15 @@ CREATE DATABASE IF NOT EXISTS shop_db;
 
 USE shop_db;
 
+DROP TABLE IF EXISTS banners;
+
+CREATE TABLE IF NOT EXISTS banners (
+    id VARCHAR(40) PRIMARY KEY,
+    picture VARCHAR(200) NOT NULL,
+    title VARCHAR(100),
+    description VARCHAR(40)
+);
+
 DROP TABLE IF EXISTS credentials;
 
 CREATE TABLE IF NOT EXISTS credentials (
@@ -48,9 +57,10 @@ DROP TABLE IF EXISTS categories;
 CREATE TABLE IF NOT EXISTS categories (
     id VARCHAR(40) PRIMARY KEY,
     parent_category VARCHAR(40),
-    slug VARCHAR(20) UNIQUE NOT NULL,
+    slug VARCHAR(20) NOT NULL,
     name VARCHAR(20) UNIQUE NOT NULL,
-    description VARCHAR(20) UNIQUE NOT NULL,
+    picture VARCHAR(200),
+    description VARCHAR(20) NOT NULL,
     tags JSON,
     created_at DATE,
     updated_at DATE
@@ -69,6 +79,7 @@ CREATE TABLE IF NOT EXISTS products (
     price BIGINT,
     discount_type VARCHAR(20),
     discount_value BIGINT,
+    sales BIGINT,
     tags JSON,
     created_at DATE,
     updated_at DATE,

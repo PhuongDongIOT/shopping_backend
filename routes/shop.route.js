@@ -9,6 +9,7 @@ router.get('/cart/:cartId', auth(), shopController.getCart);
 router.post('/cart', auth(), shopController.postCart);
 router.post('/cart-delete-item', auth(), shopController.postCartDeleteProduct);
 router.post('/orders', createOrderSchema, auth(), shopController.postOrder);
+router.get('/orders', auth(), shopController.getListOrders);
 router.delete('/orders', createOrderSchema, auth(), shopController.deleteOrder);
 router.post('/reviews', createReviewSchema, auth(), shopController.postReview);
 router.get('/orders/:orderId', auth(), shopController.getOrders);

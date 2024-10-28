@@ -1,12 +1,13 @@
+
 const { v4: uuidv4 } = require('uuid');
 const query = require('../db/db-connection');
 const { multipleColumnSet } = require('../utils/common.utils');
 
-class OrderModel {
-    tableOrder = 'orders';
+class BannerModel {
+    tableBanner = 'banners';
 
     find = async (params = {}) => {
-        let sql = `SELECT CONVERT(id, NCHAR) id, CONVERT(user_id, NCHAR) user_id, status  FROM ${this.tableOrder}`;
+        let sql = `SELECT CONVERT(id, NCHAR) product_id, picture, title FROM ${this.tableBanner}`;
         if (!Object.keys(params).length) return await query(sql);
         const { columnSet, values } = multipleColumnSet(params)
         sql += ` WHERE ${columnSet}`;
@@ -15,38 +16,41 @@ class OrderModel {
 
     findOne = async (params) => {
         const { columnSet, values } = multipleColumnSet(params)
-        const sql = `SELECT * FROM ${this.tableOrder}
+        const sql = `SELECT * FROM ${this.tableBanner}
         WHERE ${columnSet}`;
         const result = await query(sql, [...values]);
         return result[0];
     }
 
-    create = async ({ user_id }) => {
-        const sqlOrder = `INSERT INTO ${this.tableOrder}
-        (id, user_id, is_deleted,status) VALUES (?, ?, ?, ?)`;
+    create = async ({ picture = "", title = "" }) => {        
+        const sqlbanner = `INSERT INTO ${this.tableBanner}
+        (id, picture, title) VALUES (?, ?, ?)`;
         try {
-            const oderId = uuidv4();
-            await query(sqlOrder, [oderId, user_id, 0, 1]);
-            return oderId;
+            const idBanner = uuidv4();
+            await query(sqlbanner, [idBanner, picture, title]);
+            return idBanner;
         } catch (error) {
+            console.log(error);
+            
             return null;
         }
     }
 
     update = async (params, id) => {
         const { columnSet, values } = multipleColumnSet(params)
-        const sql = `UPDATE ${this.tableOrder} SET ${columnSet} WHERE id = ?`;
+        const sql = `UPDATE ${this.tableBanner} SET ${columnSet} WHERE id = ?`;
         const result = await query(sql, [...values, id]);
         return result;
     }
 
-    delete = async ({id, message}) => {
-        const sql = `UPDATE ${this.tableOrder} SET is_deleted = 1, message = ?
+    delete = async (params, id) => {
+        const { columnSet, values } = multipleColumnSet(params)
+        const sql = `UPDATE ${this.tableBanner} SET ${columnSet}
         WHERE id = ?`;
-        const result = await query(sql, [message, id]);
+        const result = await query(sql, [...values, id]);
         const affectedRows = result ? result.affectedRows : 0;
         return affectedRows;
     }
 }
 
-module.exports = new OrderModel;
+module.exports = new BannerModel;

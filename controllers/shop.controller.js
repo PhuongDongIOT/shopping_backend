@@ -218,6 +218,31 @@ exports.deleteOrder = (req, res, next) => {
     })
 };
 
+exports.getListOrders = (req, res, next) => {
+    const { id } = req.currentUser;
+    console.log(id.toString());
+    
+    OrderModel.find({user_id: id.toString()})
+        .then(async (listOrder) => {
+            console.log(listOrder);
+            
+            return res.json({
+                success: true,
+                error: null,
+                data: {
+                    list: listOrder
+                }
+            });
+        })
+        .catch(error => {
+            return res.json({
+                success: false,
+                data: null,
+                error: error
+            });
+        });
+};
+
 exports.getOrders = (req, res, next) => {
     const { orderId } = req.params;
     OrderLineModel.find({ order_id: orderId })

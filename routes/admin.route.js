@@ -6,6 +6,8 @@ const { createProductSchema, updateProductSchema } = require('../middleware/vali
 
 const router = express.Router();
 
+router.get('/banner', adminController.getBanner);
+router.post('/banner', adminController.postBanner);
 router.post(
     '/add-category',
     createCategorySchema,
@@ -17,6 +19,7 @@ router.get(
     adminController.getListCategory
 );
 router.get('/product', adminController.getListProduct);
+router.get('/product/sale', adminController.getListSaleProduct);
 router.get('/product/:productId', adminController.getProduct);
 router.post(
     '/add-product',
