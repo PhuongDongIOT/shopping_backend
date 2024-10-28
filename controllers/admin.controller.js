@@ -184,8 +184,9 @@ exports.getListProduct = (req, res, next) => {
 exports.getListSaleProduct = (req, res, next) => {
     ProductModel.findSale().then(result => {
         let objProduct = [];
-        try {
+        try {            
             if (result) objProduct = Object.values(result)
+            objProduct = HelperModel.convertLinkStatic(objProduct, "picture");
         } catch (error) { }
         return res.json({
             success: true,

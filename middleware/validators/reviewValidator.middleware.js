@@ -7,7 +7,7 @@ exports.createReviewSchema = [
 ];
 
 exports.createOrderSchema = [
-    body('order_id', 'Please enter a valid order')
+    body('cart_id', 'Please enter a valid order')
         .isLength({ min: 1 })
         .trim(),
     body('message', 'Please enter a valid message')
