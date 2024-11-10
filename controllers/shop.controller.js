@@ -145,9 +145,9 @@ exports.postCartDeleteProduct = (req, res, next) => {
     })
 };
 
-exports.postOrder = (req, res, next) => {
+exports.postOrder = async (req, res, next) => {
     const { id } = req.currentUser;
-    const { cart_id } = req.body;
+    const { products } = req.body;
 
     const errors = validationResult(req);
     if (!errors.isEmpty()) return res.json({
@@ -155,38 +155,25 @@ exports.postOrder = (req, res, next) => {
         data: null,
         error: errors
     });
-
-    CartItemModel.find({ cart_id })
-        .then(async (listProduct) => {
-
-            await CartModel.delete({ id: cart_id }, cart_id)
-            const oderId = await OrderModel.create({ user_id: id.toString() })
-            if (checkEmptyArray(listProduct)) {
-                for (item of listProduct) {
-                    const { product_id, quantity, price } = item;
-                    await OrderLineModel.create({
-                        cart_id: oderId,
-                        product_id,
-                        quantity: quantity,
-                        price: price
-                    })
-                }
-            }
-            return res.json({
-                success: true,
-                error: null,
-                data: {
-                    id: oderId
-                }
-            });
-        })
-        .catch(error => {
-            return res.json({
-                success: false,
-                data: null,
-                error: error
-            });
-        });
+    const oderId = await OrderModel.create({ user_id: id.toString() })
+    if (checkEmptyArray(products)) {
+        for (item of products) {
+            const { product_id, quantity, price } = item;
+            await OrderLineModel.create({
+                cart_id: oderId,
+                product_id,
+                quantity: quantity,
+                price: price
+            })
+        }
+    }
+    return res.json({
+        success: true,
+        error: null,
+        data: {
+            id: oderId
+        }
+    });
 };
 
 exports.deleteOrder = (req, res, next) => {
@@ -220,17 +207,33 @@ exports.deleteOrder = (req, res, next) => {
 
 exports.getListOrders = (req, res, next) => {
     const { id } = req.currentUser;
-    console.log(id.toString());
-    
-    OrderModel.find({user_id: id.toString()})
+    OrderModel.find({ user_id: id.toString() })
         .then(async (listOrder) => {
-            console.log(listOrder);
-            
+            const listFilterOder = [];
+            listOrder.forEach(element => {
+                const isCheck = listFilterOder.findIndex(el => element.id === el.id);
+                const { price, quantity, title, sales } = element;
+                delete element.price;
+                delete element.quantity;
+                delete element.title;
+                delete element.sales;
+                const newObj = { price, quantity, title, sales };
+                if (isCheck !== 0 || !isCheck) {
+                    element.products = [
+                        newObj
+                    ]
+                    listFilterOder.push(element);
+                }
+                else {
+                    listFilterOder[isCheck].products.push(newObj);
+                }
+
+            });
             return res.json({
                 success: true,
                 error: null,
                 data: {
-                    list: listOrder
+                    list: listFilterOder
                 }
             });
         })
@@ -242,6 +245,151 @@ exports.getListOrders = (req, res, next) => {
             });
         });
 };
+
+exports.getListAllOrdersDetroy = (req, res, next) => {
+    OrderModel.findProductDetroy()
+        .then(async (listOrder) => {
+            const listFilterOder = [];
+            listOrder.forEach(element => {
+                const isCheck = listFilterOder.findIndex(el => element.id === el.id);
+                const { price, quantity, title, sales } = element;
+                delete element.price;
+                delete element.quantity;
+                delete element.title;
+                delete element.sales;
+                const newObj = { price, quantity, title, sales };
+                if (isCheck !== 0 || !isCheck) {
+                    element.products = [
+                        newObj
+                    ]
+                    listFilterOder.push(element);
+                }
+                else {
+                    listFilterOder[isCheck].products.push(newObj);
+                }
+
+            });
+            return res.json({
+                success: true,
+                error: null,
+                data: {
+                    list: listFilterOder
+                }
+            });
+        })
+        .catch(error => {
+            return res.json({
+                success: false,
+                data: null,
+                error: error
+            });
+        });
+};
+
+exports.getListAllOrdersReview = (req, res, next) => {
+    OrderModel.findProductReview()
+        .then(async (listOrder) => {
+            const listFilterOder = [];
+            listOrder.forEach(element => {
+                const isCheck = listFilterOder.findIndex(el => element.id === el.id);
+                const { price, quantity, title, sales } = element;
+                delete element.price;
+                delete element.quantity;
+                delete element.title;
+                delete element.sales;
+                const newObj = { price, quantity, title, sales };
+                if (isCheck !== 0 || !isCheck) {
+                    element.products = [
+                        newObj
+                    ]
+                    listFilterOder.push(element);
+                }
+                else {
+                    listFilterOder[isCheck].products.push(newObj);
+                }
+
+            });
+            return res.json({
+                success: true,
+                error: null,
+                data: {
+                    list: listFilterOder
+                }
+            });
+        })
+        .catch(error => {            return res.json({
+                success: false,
+                data: null,
+                error: error
+            });
+        });
+};
+
+exports.getListAllOrders = (req, res, next) => {
+    OrderModel.findProduct()
+        .then(async (listOrder) => {
+            const listFilterOder = [];
+            listOrder.forEach(element => {
+                const isCheck = listFilterOder.findIndex(el => element.id === el.id);
+                const { price, quantity, title, sales } = element;
+                delete element.price;
+                delete element.quantity;
+                delete element.title;
+                delete element.sales;
+                const newObj = { price, quantity, title, sales };
+                if (isCheck !== 0 || !isCheck) {
+                    element.products = [
+                        newObj
+                    ]
+                    listFilterOder.push(element);
+                }
+                else {
+                    listFilterOder[isCheck].products.push(newObj);
+                }
+
+            });
+            return res.json({
+                success: true,
+                error: null,
+                data: {
+                    list: listFilterOder
+                }
+            });
+        })
+        .catch(error => {
+            console.log(error);
+
+            return res.json({
+                success: false,
+                data: null,
+                error: error
+            });
+        });
+};
+
+exports.postReviewOrder = (req, res, next) => {
+    const { order_id, review } = req.body;
+    OrderModel.update({
+        review
+    }, order_id)
+    .then(async () => {
+        return res.json({
+            success: true,
+            error: null,
+            data: {
+                id: order_id
+            }
+        });
+    })
+    .catch(error => {
+        return res.json({
+            success: false,
+            data: null,
+            error: error
+        });
+    });
+};
+
 
 exports.getOrders = (req, res, next) => {
     const { orderId } = req.params;

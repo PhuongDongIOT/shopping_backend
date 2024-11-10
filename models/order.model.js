@@ -6,11 +6,41 @@ class OrderModel {
     tableOrder = 'orders';
 
     find = async (params = {}) => {
-        let sql = `SELECT CONVERT(id, NCHAR) id, CONVERT(user_id, NCHAR) user_id, status  FROM ${this.tableOrder}`;
+        let sql = `SELECT users.name, users.avatar, users.address,  CONVERT(orders.is_deleted, INT) as is_deleted, CONVERT(orders.id, NCHAR) as id, orders.status, products.summary, order_lines.price, order_lines.quantity, products.title, products.sales FROM orders
+                    INNER JOIN users ON orders.user_id = users.id
+                    LEFT JOIN order_lines ON orders.id = order_lines.order_id
+                    LEFT JOIN products ON order_lines.product_id = products.id`;
         if (!Object.keys(params).length) return await query(sql);
         const { columnSet, values } = multipleColumnSet(params)
         sql += ` WHERE ${columnSet}`;
         return await query(sql, [...values]);
+    }
+
+    findProduct = async (params = {}) => {
+        let sql = `SELECT users.name, users.avatar, users.address,  CONVERT(orders.is_deleted, INT) as is_deleted, CONVERT(orders.id, NCHAR) as id, orders.status, products.summary, order_lines.price, order_lines.quantity, products.title, products.sales FROM orders
+                    INNER JOIN users ON orders.user_id = users.id
+                    LEFT JOIN order_lines ON orders.id = order_lines.order_id
+                    LEFT JOIN products ON order_lines.product_id = products.id
+                    WHERE orders.status = 1 AND orders.is_deleted = 0`;
+        return await query(sql);
+    }
+
+    findProductDetroy= async (params = {}) => {
+        let sql = `SELECT users.name, users.avatar, users.address, orders.reason as reason,  CONVERT(orders.is_deleted, INT) as is_deleted, CONVERT(orders.id, NCHAR) as id, orders.status, products.summary, order_lines.price, order_lines.quantity, products.title, products.sales FROM orders
+                    INNER JOIN users ON orders.user_id = users.id
+                    LEFT JOIN order_lines ON orders.id = order_lines.order_id
+                    LEFT JOIN products ON order_lines.product_id = products.id
+                    WHERE orders.status = 1 AND orders.is_deleted = 1`;
+        return await query(sql);
+    }
+
+    findProductReview= async (params = {}) => {
+        let sql = `SELECT users.name, users.avatar, users.address, orders.review as review,  CONVERT(orders.is_deleted, INT) as is_deleted, CONVERT(orders.id, NCHAR) as id, orders.status, products.summary, order_lines.price, order_lines.quantity, products.title, products.sales FROM orders
+                    INNER JOIN users ON orders.user_id = users.id
+                    LEFT JOIN order_lines ON orders.id = order_lines.order_id
+                    LEFT JOIN products ON order_lines.product_id = products.id
+                    WHERE orders.status = 1 AND orders.is_deleted = 0 AND orders.review is not null`;
+        return await query(sql);
     }
 
     findOne = async (params) => {

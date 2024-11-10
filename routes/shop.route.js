@@ -10,8 +10,12 @@ router.post('/cart', auth(), shopController.postCart);
 router.post('/cart-delete-item', auth(), shopController.postCartDeleteProduct);
 router.post('/orders', createOrderSchema, auth(), shopController.postOrder);
 router.get('/orders', auth(), shopController.getListOrders);
+router.get('/orders/all', shopController.getListAllOrders);
+router.get('/orders/detroy', shopController.getListAllOrdersDetroy);
+router.get('/orders/review', shopController.getListAllOrdersReview);
 router.delete('/orders', createOrderSchema, auth(), shopController.deleteOrder);
 router.post('/reviews', createReviewSchema, auth(), shopController.postReview);
+router.post('/reviews/order', shopController.postReviewOrder);
 router.get('/orders/:orderId', auth(), shopController.getOrders);
 
 module.exports = router;

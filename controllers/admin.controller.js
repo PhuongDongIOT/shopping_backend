@@ -159,7 +159,8 @@ exports.getListCategory = (req, res, next) => {
 };
 
 exports.getListProduct = (req, res, next) => {
-    ProductModel.find().then(result => {
+    const { title } = req.query;
+    ProductModel.find(title).then(result => {
         let objProduct = [];
         try {
             if (result) objProduct = Object.values(result);
@@ -184,7 +185,7 @@ exports.getListProduct = (req, res, next) => {
 exports.getListSaleProduct = (req, res, next) => {
     ProductModel.findSale().then(result => {
         let objProduct = [];
-        try {            
+        try {
             if (result) objProduct = Object.values(result)
             objProduct = HelperModel.convertLinkStatic(objProduct, "picture");
         } catch (error) { }

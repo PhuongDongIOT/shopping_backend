@@ -38,7 +38,7 @@ exports.postLogin = (req, res, next) => {
                     const secretKey = process.env.SECRET_JWT || "";
                     user.id = `${user.id}`
                     const token = doMatch ? jwt.sign({ ...user }, secretKey, { expiresIn: 60 * 60 }) : '';
-                    res.json({
+                    if (token) return res.json({
                         success: true,
                         error: null,
                         data: {
@@ -46,6 +46,10 @@ exports.postLogin = (req, res, next) => {
                             ...user
                         }
                     })
+                    else return res.json({
+                        success: false,
+                        error: error
+                    });
                 })
                 .catch(error => {
                     return res.json({
