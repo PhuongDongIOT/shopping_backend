@@ -11,6 +11,14 @@ class HelperModel {
         });
         return params;
     }
+
+    convertLinkStaticObj = (item = {}, key = "") => {
+        if (item[key]) {
+            item[key] = item[key].replace(/[&\/\\]/g,'/');
+            item[key] = linkStatic + item[key]
+        }
+        return item;
+    }
 }
 
 module.exports = new HelperModel;

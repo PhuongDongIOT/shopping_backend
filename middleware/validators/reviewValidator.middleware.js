@@ -7,10 +7,10 @@ exports.createReviewSchema = [
 ];
 
 exports.createOrderSchema = [
-    body('cart_id', 'Please enter a valid order')
+    body('order_id', 'Please enter a valid order')
         .isLength({ min: 1 })
         .trim(),
-    body('message', 'Please enter a valid message')
+    body('reason', 'Please enter a valid message')
         .isLength({ min: 1 })
         .trim()
 ];

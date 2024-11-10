@@ -48,12 +48,14 @@ exports.postLogin = (req, res, next) => {
                     })
                     else return res.json({
                         success: false,
-                        error: error
+                        data: null,
+                        error: {}
                     });
                 })
                 .catch(error => {
                     return res.json({
                         success: false,
+                        data: null,
                         error: error
                     });
                 });

@@ -6,6 +6,7 @@ const OrderModel = require('../models/order.model');
 const OrderLineModel = require('../models/order-line.model');
 const ReviewModel = require('../models/review.model');
 const { checkEmptyArray } = require('../utils/array.utils');
+const helperModel = require('../models/helper.model');
 
 exports.getCart = (req, res, next) => {
     const { cartId } = req.params;
@@ -149,21 +150,16 @@ exports.postOrder = async (req, res, next) => {
     const { id } = req.currentUser;
     const { products } = req.body;
 
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) return res.json({
-        success: false,
-        data: null,
-        error: errors
-    });
     const oderId = await OrderModel.create({ user_id: id.toString() })
     if (checkEmptyArray(products)) {
         for (item of products) {
-            const { product_id, quantity, price } = item;
+            const { product_id, quantity } = item;
+            const product = await ProductModel.findOne({ id: product_id })
             await OrderLineModel.create({
                 cart_id: oderId,
                 product_id,
                 quantity: quantity,
-                price: price
+                price: product?.price ?? 0
             })
         }
     }
@@ -177,7 +173,7 @@ exports.postOrder = async (req, res, next) => {
 };
 
 exports.deleteOrder = (req, res, next) => {
-    const { order_id, message } = req.body;
+    const { order_id, reason } = req.body;
     const errors = validationResult(req);
     if (!errors.isEmpty()) return res.json({
         success: false,
@@ -187,13 +183,13 @@ exports.deleteOrder = (req, res, next) => {
 
     OrderModel.delete({
         id: order_id,
-        message
+        message: reason
     }).then(result => {
         return res.json({
             success: true,
             error: null,
             data: {
-                isSuccedd: true
+                id: order_id
             }
         });
     }).catch(error => {
@@ -218,6 +214,7 @@ exports.getListOrders = (req, res, next) => {
                 delete element.title;
                 delete element.sales;
                 const newObj = { price, quantity, title, sales };
+                
                 if (isCheck !== 0 || !isCheck) {
                     element.products = [
                         newObj
@@ -251,20 +248,26 @@ exports.getListAllOrdersDetroy = (req, res, next) => {
         .then(async (listOrder) => {
             const listFilterOder = [];
             listOrder.forEach(element => {
-                const isCheck = listFilterOder.findIndex(el => element.id === el.id);
-                const { price, quantity, title, sales } = element;
+                const isCheck = listFilterOder.findIndex(el => element.id === el.id);                
+                element = helperModel.convertLinkStaticObj(element, "picture");
+                const { price, quantity, title, sales, picture } = element;
                 delete element.price;
                 delete element.quantity;
                 delete element.title;
                 delete element.sales;
-                const newObj = { price, quantity, title, sales };
+                delete element.picture;
+                const newObj = { price, quantity, title, sales, picture };
                 if (isCheck !== 0 || !isCheck) {
+                    element.prices_order = parseInt(price ?? 0);
+                    element.sales_order = parseInt(sales ?? 0);
                     element.products = [
                         newObj
                     ]
                     listFilterOder.push(element);
                 }
                 else {
+                    listFilterOder[isCheck].prices_order = (parseInt(listFilterOder[isCheck].prices_order) ?? 0) + parseInt(price ?? 0);
+                    listFilterOder[isCheck].sales_order = (parseInt(listFilterOder[isCheck].sales_order) ?? 0) + parseInt(sales ?? 0);
                     listFilterOder[isCheck].products.push(newObj);
                 }
 
@@ -292,19 +295,25 @@ exports.getListAllOrdersReview = (req, res, next) => {
             const listFilterOder = [];
             listOrder.forEach(element => {
                 const isCheck = listFilterOder.findIndex(el => element.id === el.id);
-                const { price, quantity, title, sales } = element;
+                element = helperModel.convertLinkStaticObj(element, "picture");
+                const { price, quantity, title, sales, picture } = element;
                 delete element.price;
                 delete element.quantity;
                 delete element.title;
                 delete element.sales;
-                const newObj = { price, quantity, title, sales };
+                delete element.picture;
+                const newObj = { price, quantity, title, sales, picture };
                 if (isCheck !== 0 || !isCheck) {
+                    element.prices_order = parseInt(price ?? 0);
+                    element.sales_order = parseInt(sales ?? 0);
                     element.products = [
                         newObj
                     ]
                     listFilterOder.push(element);
                 }
                 else {
+                    listFilterOder[isCheck].prices_order = (parseInt(listFilterOder[isCheck].prices_order) ?? 0) + parseInt(price ?? 0);
+                    listFilterOder[isCheck].sales_order = (parseInt(listFilterOder[isCheck].sales_order) ?? 0) + parseInt(sales ?? 0);
                     listFilterOder[isCheck].products.push(newObj);
                 }
 
@@ -317,7 +326,8 @@ exports.getListAllOrdersReview = (req, res, next) => {
                 }
             });
         })
-        .catch(error => {            return res.json({
+        .catch(error => {            
+            return res.json({
                 success: false,
                 data: null,
                 error: error
@@ -330,20 +340,25 @@ exports.getListAllOrders = (req, res, next) => {
         .then(async (listOrder) => {
             const listFilterOder = [];
             listOrder.forEach(element => {
-                const isCheck = listFilterOder.findIndex(el => element.id === el.id);
-                const { price, quantity, title, sales } = element;
+                element = helperModel.convertLinkStaticObj(element, "picture");
+                const { price, quantity, title, sales, picture } = element;
                 delete element.price;
                 delete element.quantity;
                 delete element.title;
                 delete element.sales;
-                const newObj = { price, quantity, title, sales };
+                delete element.picture;
+                const newObj = { price, quantity, title, sales, picture };
                 if (isCheck !== 0 || !isCheck) {
+                    element.prices_order = parseInt(price ?? 0);
+                    element.sales_order = parseInt(sales ?? 0);
                     element.products = [
                         newObj
                     ]
                     listFilterOder.push(element);
                 }
                 else {
+                    listFilterOder[isCheck].prices_order = (parseInt(listFilterOder[isCheck].prices_order) ?? 0) + parseInt(price ?? 0);
+                    listFilterOder[isCheck].sales_order = (parseInt(listFilterOder[isCheck].sales_order) ?? 0) + parseInt(sales ?? 0);
                     listFilterOder[isCheck].products.push(newObj);
                 }
 
@@ -372,22 +387,45 @@ exports.postReviewOrder = (req, res, next) => {
     OrderModel.update({
         review
     }, order_id)
-    .then(async () => {
-        return res.json({
-            success: true,
-            error: null,
-            data: {
-                id: order_id
-            }
+        .then(async () => {
+            return res.json({
+                success: true,
+                error: null,
+                data: {
+                    id: order_id
+                }
+            });
+        })
+        .catch(error => {
+            return res.json({
+                success: false,
+                data: null,
+                error: error
+            });
         });
-    })
-    .catch(error => {
-        return res.json({
-            success: false,
-            data: null,
-            error: error
+};
+
+exports.updateOrder = (req, res, next) => {
+    const { order_id } = req.body;
+    OrderModel.update({
+        status: 0
+    }, order_id)
+        .then(async () => {
+            return res.json({
+                success: true,
+                error: null,
+                data: {
+                    id: order_id
+                }
+            });
+        })
+        .catch(error => {
+            return res.json({
+                success: false,
+                data: null,
+                error: error
+            });
         });
-    });
 };
 
 

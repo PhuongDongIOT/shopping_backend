@@ -1,4 +1,4 @@
-// const { v4: uuidv4 } = require('uuid');
+const { v4: uuidv4 } = require('uuid');
 const query = require('../db/db-connection');
 const { multipleColumnSet } = require('../utils/common.utils');
 
@@ -22,11 +22,11 @@ class OrderLineModel {
     }
 
     create = async ({ cart_id, product_id, price, quantity }) => {
+        const oderId = uuidv4();
         const sqlUser = `INSERT INTO ${this.tableCartItem}
-        (order_id, product_id, price, quantity) VALUES (?, ?, ?, ?)`;
-        const resultuser = await query(sqlUser, [cart_id, product_id, price, quantity]);
-        const affectedRows = resultuser ? resultuser.affectedRows : 0;
-        return affectedRows;
+        (id, order_id, product_id, price, quantity) VALUES (? ,?, ?, ?, ?)`;
+        const resultuser = await query(sqlUser, [oderId, cart_id, product_id, price, quantity]);
+        return oderId;
     }
 
     update = async (params, id) => {

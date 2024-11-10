@@ -159,8 +159,10 @@ exports.getListCategory = (req, res, next) => {
 };
 
 exports.getListProduct = (req, res, next) => {
-    const { title } = req.query;
-    ProductModel.find(title).then(result => {
+    const { category_id } = req.query;
+    const titleObj = { title };
+    const category = { category_id };
+    ProductModel.find(title ? titleObj : category_id ? category : {}).then(result => {
         let objProduct = [];
         try {
             if (result) objProduct = Object.values(result);
