@@ -8,7 +8,7 @@ const router = express.Router();
 router.get('/cart/:cartId', auth(), shopController.getCart);
 router.post('/cart', auth(), shopController.postCart);
 router.post('/cart-delete-item', auth(), shopController.postCartDeleteProduct);
-router.post('/orders', auth(), shopController.postOrder);
+router.post('/orders', shopController.postOrder);
 router.get('/orders', shopController.getListOrders);
 router.get('/orders/all', shopController.getListAllOrders);
 router.get('/orders/detroy', shopController.getListAllOrdersDetroy);

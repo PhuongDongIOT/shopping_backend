@@ -147,10 +147,12 @@ exports.postCartDeleteProduct = (req, res, next) => {
 };
 
 exports.postOrder = async (req, res, next) => {
-    const { id } = req.currentUser;
-    const { products } = req.body;
+    // const { id } = req.currentUser;
+    const { products, user_id, address } = req.body;
 
-    const oderId = await OrderModel.create({ user_id: id.toString() })
+    const oderId = await OrderModel.create({ user_id, address })
+    console.log(oderId);
+    
     if (checkEmptyArray(products)) {
         for (item of products) {
             const { product_id, quantity } = item;

@@ -5,10 +5,11 @@ const { multipleColumnSet } = require('../utils/common.utils');
 class ProductModel {
     tableProductName = 'products';
 
-    find = async (title) => {
+    find = async (title, category_id) => {
         let sql = `SELECT CONVERT(products.id, NCHAR) id, CONVERT(products.category_id, NCHAR) category_id, title, slug, picture, summary, description, price, created_by, sales FROM ${this.tableProductName}`;
-        if (!title) return await query(sql);      
-        if(title) sql += ` WHERE title like '${title}%' limit 5`;
+        if (!title && !category_id) return await query(sql);      
+        if(title) sql += ` WHERE title like '${title}%'`;        
+        if(category_id) sql += ` WHERE CONVERT(category_id, NCHAR) = '${category_id}'`;
         return await query(sql);
     }
 
