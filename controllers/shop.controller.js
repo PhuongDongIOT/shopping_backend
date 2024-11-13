@@ -151,8 +151,6 @@ exports.postOrder = async (req, res, next) => {
     const { products, user_id, address } = req.body;
 
     const oderId = await OrderModel.create({ user_id, address })
-    console.log(oderId);
-
     if (checkEmptyArray(products)) {
         for (item of products) {
             const { product_id, quantity } = item;
@@ -211,6 +209,8 @@ exports.getListOrders = (req, res, next) => {
             listOrder.forEach(element => {
                 const isCheck = listFilterOder.findIndex(el => element.id === el.id);
                 const { price, quantity, title, sales, picture } = element;
+                if (element.status) element.status = "chưa xác nhận"
+                else element.status = "đã xác nhận"
                 delete element.price;
                 delete element.quantity;
                 delete element.title;
@@ -220,12 +220,16 @@ exports.getListOrders = (req, res, next) => {
                 newObj = helperModel.convertLinkStaticObj(newObj, "picture");
                 if (title) {
                     if (isCheck !== 0 || !isCheck) {
+                        element.prices_order = parseInt(price ?? 0);
+                        element.sales_order = parseInt(sales ?? 0);
                         element.products = [
                             newObj
                         ]
                         listFilterOder.push(element);
                     }
                     else {
+                        listFilterOder[isCheck].prices_order = (parseInt(listFilterOder[isCheck].prices_order) ?? 0) + parseInt(price ?? 0);
+                        listFilterOder[isCheck].sales_order = (parseInt(listFilterOder[isCheck].sales_order) ?? 0) + parseInt(sales ?? 0);
                         listFilterOder[isCheck].products.push(newObj);
                     }
                 }
