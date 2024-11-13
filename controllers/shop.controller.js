@@ -152,7 +152,7 @@ exports.postOrder = async (req, res, next) => {
 
     const oderId = await OrderModel.create({ user_id, address })
     console.log(oderId);
-    
+
     if (checkEmptyArray(products)) {
         for (item of products) {
             const { product_id, quantity } = item;
@@ -204,27 +204,30 @@ exports.deleteOrder = (req, res, next) => {
 };
 
 exports.getListOrders = (req, res, next) => {
-    const { id } = req.currentUser;
-    OrderModel.find({ user_id: id.toString() })
+    const { user_id } = req.query;
+    OrderModel.find({ user_id: user_id })
         .then(async (listOrder) => {
             const listFilterOder = [];
             listOrder.forEach(element => {
                 const isCheck = listFilterOder.findIndex(el => element.id === el.id);
-                const { price, quantity, title, sales } = element;
+                const { price, quantity, title, sales, picture } = element;
                 delete element.price;
                 delete element.quantity;
                 delete element.title;
                 delete element.sales;
-                const newObj = { price, quantity, title, sales };
-                
-                if (isCheck !== 0 || !isCheck) {
-                    element.products = [
-                        newObj
-                    ]
-                    listFilterOder.push(element);
-                }
-                else {
-                    listFilterOder[isCheck].products.push(newObj);
+                delete element.picture;
+                let newObj = { price, quantity, title, sales, picture };
+                newObj = helperModel.convertLinkStaticObj(newObj, "picture");
+                if (title) {
+                    if (isCheck !== 0 || !isCheck) {
+                        element.products = [
+                            newObj
+                        ]
+                        listFilterOder.push(element);
+                    }
+                    else {
+                        listFilterOder[isCheck].products.push(newObj);
+                    }
                 }
 
             });
@@ -250,7 +253,7 @@ exports.getListAllOrdersDetroy = (req, res, next) => {
         .then(async (listOrder) => {
             const listFilterOder = [];
             listOrder.forEach(element => {
-                const isCheck = listFilterOder.findIndex(el => element.id === el.id);                
+                const isCheck = listFilterOder.findIndex(el => element.id === el.id);
                 element = helperModel.convertLinkStaticObj(element, "picture");
                 const { price, quantity, title, sales, picture } = element;
                 delete element.price;
@@ -328,7 +331,7 @@ exports.getListAllOrdersReview = (req, res, next) => {
                 }
             });
         })
-        .catch(error => {            
+        .catch(error => {
             return res.json({
                 success: false,
                 data: null,
@@ -342,6 +345,7 @@ exports.getListAllOrders = (req, res, next) => {
         .then(async (listOrder) => {
             const listFilterOder = [];
             listOrder.forEach(element => {
+                const isCheck = listFilterOder.findIndex(el => element.id === el.id);
                 element = helperModel.convertLinkStaticObj(element, "picture");
                 const { price, quantity, title, sales, picture } = element;
                 delete element.price;
