@@ -47,6 +47,47 @@ app.use(
 );
 app.use(flash());
 app.post('/create-order', auth(), shopController.postOrder);
+app.get('/api', (req, res) => {
+    res.json([{
+      orderId: "1234567",
+      customerName: "23456789",
+      totalAmount: 34567890,
+      status: "hoho"
+    }, 
+    {
+        orderId: "1234567",
+        customerName: "23456789",
+        totalAmount: 34567890,
+        status: "hoho"
+      },
+      {
+        orderId: "1234567",
+        customerName: "23456789",
+        totalAmount: 34567890,
+        status: "hoho"
+      }])
+  })
+  app.get('/reviews', (req, res) => {
+    res.json([{
+      orderId: "1234567",
+      orderDate: "1234567",
+      customerName: "23456789",
+      productName: "23456789",
+      customerName: "23456789",
+      reviewText: "23456789",
+      rating: 4
+    }])
+  })
+
+  app.get('/api/orders', (req, res) => {
+    res.json([{
+      orderId: "1234567",
+      productName: "1234567",
+      productPrice: "23456789",
+      productQuantity: 10,
+      orderTime: "23456789"
+    }])
+  })
 app.use('/admin', adminRoutes);
 app.use(shopRoutes);
 app.use(authRoutes);
