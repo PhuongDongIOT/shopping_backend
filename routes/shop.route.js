@@ -11,6 +11,7 @@ router.post('/cart-delete-item', auth(), shopController.postCartDeleteProduct);
 router.post('/orders', shopController.postOrder);
 router.get('/orders', shopController.getListOrders);
 router.get('/orders/all', shopController.getListAllOrders);
+router.get('/orders/sold', shopController.getListOrdersProduct);
 router.get('/orders/detroy', shopController.getListAllOrdersDetroy);
 router.get('/orders/review', shopController.getListAllOrdersReview);
 router.delete('/orders', createOrderSchema, shopController.deleteOrder);

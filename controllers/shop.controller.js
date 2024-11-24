@@ -252,6 +252,50 @@ exports.getListOrders = (req, res, next) => {
         });
 };
 
+exports.getListOrdersProduct = (req, res, next) => {
+    OrderModel.find()
+        .then(async (listOrder) => {
+            const listFilterOder = [];
+            listOrder.forEach(element => {
+                const isCheck = listFilterOder.findIndex(el => element.id === el.id);
+                const { price, quantity, title, sales, picture } = element;
+                if (element.status) element.status = "chưa xác nhận"
+                else element.status = "đã xác nhận"
+                delete element.price;
+                delete element.quantity;
+                delete element.title;
+                delete element.sales;
+                delete element.picture;
+                let newObj = { price, quantity, title, sales, picture };
+                newObj = helperModel.convertLinkStaticObj(newObj, "picture");
+                if (title) {
+                    if (isCheck !== 0 || !isCheck) {
+                        element.prices_order = parseInt(price ?? 0);
+                        element.sales_order = parseInt(sales ?? 0);
+                        element.products = [
+                            newObj
+                        ]
+                        listFilterOder.push(element);
+                    }
+                    else {
+                        listFilterOder[isCheck].prices_order = (parseInt(listFilterOder[isCheck].prices_order) ?? 0) + parseInt(price ?? 0);
+                        listFilterOder[isCheck].sales_order = (parseInt(listFilterOder[isCheck].sales_order) ?? 0) + parseInt(sales ?? 0);
+                        listFilterOder[isCheck].products.push(newObj);
+                    }
+                }
+
+            });
+            return res.json(listOrder);
+        })
+        .catch(error => {
+            return res.json({
+                success: false,
+                data: null,
+                error: error
+            });
+        });
+};
+
 exports.getListAllOrdersDetroy = (req, res, next) => {
     OrderModel.findProductDetroy()
         .then(async (listOrder) => {
@@ -281,13 +325,7 @@ exports.getListAllOrdersDetroy = (req, res, next) => {
                 }
 
             });
-            return res.json({
-                success: true,
-                error: null,
-                data: {
-                    list: listFilterOder
-                }
-            });
+            return res.json(listFilterOder);
         })
         .catch(error => {
             return res.json({
