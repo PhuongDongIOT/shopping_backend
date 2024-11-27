@@ -206,7 +206,7 @@ exports.getListOrders = (req, res, next) => {
     OrderModel.find({ user_id: user_id })
         .then(async (listOrder) => {
             console.log(listOrder);
-            
+
             const listFilterOder = [];
             listOrder.forEach(element => {
                 const isCheck = listFilterOder.findIndex(el => element.id === el.id);
@@ -263,8 +263,8 @@ exports.getListOrdersProduct = (req, res, next) => {
                 const { price, quantity, title, sales, picture } = element;
                 if (element.status) element.status = "chưa xác nhận"
                 else element.status = "đã xác nhận"
-                element.price =  `${parseInt(price ?? 0)}`;
-                element.quantity =  `${parseInt(quantity ?? 0)}`;
+                element.price = `${parseInt(price ?? 0)}`;
+                element.quantity = `${parseInt(quantity ?? 0)}`;
                 delete element.title;
                 delete element.sales;
                 let newObj = { price, quantity, title, sales, picture };
@@ -286,7 +286,7 @@ exports.getListOrdersProduct = (req, res, next) => {
                     }
                 }
 
-            });            
+            });
             return res.json(listOrder);
         })
         .catch(error => {
@@ -340,7 +340,7 @@ exports.getListAllOrdersDetroy = (req, res, next) => {
 
 exports.getListAllOrdersReview = (req, res, next) => {
     OrderModel.findProductReview()
-        .then(async (listOrder) => {            
+        .then(async (listOrder) => {
             const listFilterOder = [];
             listOrder.forEach(element => {
                 const isCheck = listFilterOder.findIndex(el => element.id === el.id);
@@ -373,7 +373,7 @@ exports.getListAllOrdersReview = (req, res, next) => {
                 }
 
             });
-            
+
             return res.json(listFilterOder);
         })
         .catch(error => {
@@ -456,27 +456,33 @@ exports.postReviewOrder = (req, res, next) => {
         });
 };
 
-exports.updateOrder = (req, res, next) => {
-    const { order_id } = req.body;
-    OrderModel.update({
-        status: 0
-    }, order_id)
-        .then(async () => {
-            return res.json({
-                success: true,
-                error: null,
-                data: {
-                    id: order_id
-                }
-            });
-        })
-        .catch(error => {
-            return res.json({
-                success: false,
-                data: null,
-                error: error
-            });
+exports.updateOrder = async (req, res, next) => {
+
+    const { order_id, orderList, status } = req.body;
+    let statusInt = status ?? 0;
+    try {
+        if (checkEmptyArray(orderList))
+            for (let item of orderList) {
+                await OrderModel.update({
+                    status: statusInt
+                }, item)
+            }
+
+        return res.json({
+            success: true,
+            error: null,
+            data: {
+                id: item
+            }
         });
+    } catch (error) {
+        return res.json({
+            success: false,
+            data: null,
+            error: error
+        });
+    }
+
 };
 
 

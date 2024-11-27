@@ -1,5 +1,5 @@
 
-const linkStatic = "https://89e3-2405-4802-90f8-4ff0-41f-fecc-6fa8-474f.ngrok-free.app/"
+const linkStatic = "https://1c4b-171-252-155-71.ngrok-free.app/"
 class HelperModel {
     convertLinkStatic = (params = [{}], key = "") => {
         params = params.map((item, index) => {
