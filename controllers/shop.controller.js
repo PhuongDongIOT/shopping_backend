@@ -205,6 +205,8 @@ exports.getListOrders = (req, res, next) => {
     const { user_id } = req.query;
     OrderModel.find({ user_id: user_id })
         .then(async (listOrder) => {
+            console.log(listOrder);
+            
             const listFilterOder = [];
             listOrder.forEach(element => {
                 const isCheck = listFilterOder.findIndex(el => element.id === el.id);
@@ -239,7 +241,7 @@ exports.getListOrders = (req, res, next) => {
                 success: true,
                 error: null,
                 data: {
-                    list: listFilterOder
+                    list: listOrder
                 }
             });
         })
@@ -261,12 +263,12 @@ exports.getListOrdersProduct = (req, res, next) => {
                 const { price, quantity, title, sales, picture } = element;
                 if (element.status) element.status = "chưa xác nhận"
                 else element.status = "đã xác nhận"
-                delete element.price;
-                delete element.quantity;
+                element.price =  `${parseInt(price ?? 0)}`;
+                element.quantity =  `${parseInt(quantity ?? 0)}`;
                 delete element.title;
                 delete element.sales;
-                delete element.picture;
                 let newObj = { price, quantity, title, sales, picture };
+                element.picture = helperModel.convertLinkStaticObj(newObj, "picture").picture;
                 newObj = helperModel.convertLinkStaticObj(newObj, "picture");
                 if (title) {
                     if (isCheck !== 0 || !isCheck) {
@@ -284,7 +286,7 @@ exports.getListOrdersProduct = (req, res, next) => {
                     }
                 }
 
-            });
+            });            
             return res.json(listOrder);
         })
         .catch(error => {
@@ -338,18 +340,24 @@ exports.getListAllOrdersDetroy = (req, res, next) => {
 
 exports.getListAllOrdersReview = (req, res, next) => {
     OrderModel.findProductReview()
-        .then(async (listOrder) => {
+        .then(async (listOrder) => {            
             const listFilterOder = [];
             listOrder.forEach(element => {
                 const isCheck = listFilterOder.findIndex(el => element.id === el.id);
-                element = helperModel.convertLinkStaticObj(element, "picture");
+                element = helperModel.convertLinkStaticObj(element, "avatar");
                 const { price, quantity, title, sales, picture } = element;
+                element.orderId = element.id;
+                element.orderDate = element.date;
+                element.productName = element.title;
+                element.customerName = element.name;
+                element.reviewText = element.review;
+                element.rating = 4;
                 delete element.price;
                 delete element.quantity;
                 delete element.title;
                 delete element.sales;
-                delete element.picture;
                 const newObj = { price, quantity, title, sales, picture };
+                element.picture = helperModel.convertLinkStaticObj(newObj, "picture");;
                 if (isCheck !== 0 || !isCheck) {
                     element.prices_order = parseInt(price ?? 0);
                     element.sales_order = parseInt(sales ?? 0);
@@ -365,13 +373,8 @@ exports.getListAllOrdersReview = (req, res, next) => {
                 }
 
             });
-            return res.json({
-                success: true,
-                error: null,
-                data: {
-                    list: listFilterOder
-                }
-            });
+            
+            return res.json(listFilterOder);
         })
         .catch(error => {
             return res.json({

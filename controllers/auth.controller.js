@@ -162,7 +162,8 @@ exports.postReset = (req, res, next) => {
 };
 
 exports.postNewPassword = (req, res, next) => {
-    const { email, password } = req.body;
+    const { email, newPassword } = req.body;    
+    let password = newPassword;
     const errors = validationResult(req);
     if (!errors.isEmpty()) return res.json({
         success: false,
@@ -177,6 +178,8 @@ exports.postNewPassword = (req, res, next) => {
                 data: null,
                 error: {}
             });
+            bcrypt.compare(password, passwordResult.password_hash)
+                .then(doMatch => {
             bcrypt.hash(password, 12)
                 .then(async (hashedPassword) => {
                     userSail.password_hash = hashedPassword
@@ -193,6 +196,14 @@ exports.postNewPassword = (req, res, next) => {
                 })
                 .catch(error => {
                     return res.json({
+                        success: false,
+                        data: null,
+                        error: error
+                    });
+                });
+                })
+                .catch(error => {
+                    return res.json(400, {
                         success: false,
                         data: null,
                         error: error
