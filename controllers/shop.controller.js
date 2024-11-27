@@ -204,9 +204,7 @@ exports.deleteOrder = (req, res, next) => {
 exports.getListOrders = (req, res, next) => {
     const { user_id, status = 1 } = req.query;    
     OrderModel.find({ user_id: user_id }, status)
-        .then(async (listOrder) => {
-            console.log(listOrder);
-            
+        .then(async (listOrder) => {            
             const listFilterOder = [];
             listOrder.forEach(element => {
                 const isCheck = listFilterOder.findIndex(el => element.id === el.id);
@@ -245,9 +243,7 @@ exports.getListOrders = (req, res, next) => {
                 }
             });
         })
-        .catch(error => {
-            console.log(error);
-            
+        .catch(error => {            
             return res.json({
                 success: false,
                 data: null,
