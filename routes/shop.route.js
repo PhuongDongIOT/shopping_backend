@@ -14,6 +14,7 @@ router.get('/orders/all', shopController.getListAllOrders);
 router.get('/orders/sold', shopController.getListOrdersProduct);
 router.get('/orders/detroy', shopController.getListAllOrdersDetroy);
 router.get('/orders/review', shopController.getListAllOrdersReview);
+router.get('/reviews', shopController.getListAllOrdersReviewAdmin);
 router.delete('/orders', createOrderSchema, shopController.deleteOrder);
 router.post('/reviews', createReviewSchema, auth(), shopController.postReview);
 router.post('/reviews/order', shopController.postReviewOrder);

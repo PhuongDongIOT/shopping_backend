@@ -5,17 +5,16 @@ const { multipleColumnSet } = require('../utils/common.utils');
 class OrderModel {
     tableOrder = 'orders';
 
-    find = async (params = {}) => {
-        console.log(params);
-        
+    find = async (params = {}, status = 1) => {      
         let sql = `SELECT users.name, users.avatar, orders.address, products.picture, CONVERT(orders.is_deleted, INT) as is_deleted, CONVERT(orders.id, NCHAR) as id, orders.status, products.summary, order_lines.price, order_lines.quantity, products.title, products.sales, orders.date_created as date FROM orders
                     INNER JOIN users ON orders.user_id = users.id
                     LEFT JOIN order_lines ON orders.id = order_lines.order_id
                     LEFT JOIN products ON order_lines.product_id = products.id`;
-        if (!Object.keys(params).length) return await query(sql);
-        const { columnSet, values } = multipleColumnSet(params)
-        sql += ` WHERE ${columnSet}`;
-        return await query(sql, [...values]);
+        // if (!Object.keys(params).length) return await query(sql);
+        // const { columnSet, values } = multipleColumnSet(params)        
+        if(params?.user_id) sql += ` WHERE orders.user_id = "${params?.user_id}" AND orders.status = "${status}"`;
+        else sql +=  `WHERE orders.status = ${status}`;
+        return await query(sql);
     }
 
     findProduct = async (params = {}) => {

@@ -5,6 +5,7 @@ dotenv.config();
 const { validationResult } = require('express-validator/check');
 const UserModel = require('../models/user.model');
 const credentialModel = require('../models/credential.model');
+const sendMail = require('./send.mail');
 
 const passwwordDefault = '123456789';
 let userSail = {
@@ -134,8 +135,9 @@ exports.postReset = (req, res, next) => {
                     userSail.password_hash = hashedPassword;
                     const { id } = user;
                     userSail.user_id = id
-                    await credentialModel.delete(id)
-                    await credentialModel.create(userSail)
+                    await credentialModel.delete(id);
+                    await credentialModel.create(userSail);
+                    await sendMail.funcSendmail(email);
                     return res.json({
                         success: true,
                         error: null,
@@ -151,6 +153,35 @@ exports.postReset = (req, res, next) => {
                         error: error
                     });
                 });
+        })
+        .catch(error => {
+            return res.json({
+                success: false,
+                data: null,
+                error: error
+            });
+        });
+};
+
+exports.postUpdate = (req, res, next) => {
+    const { name, phoneNumber, age, bio = "nam", id } = req.body;
+    
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) return res.json({
+        success: false,
+        data: null,
+        error: errors
+    });
+
+    UserModel.update({ name, phoneNumber, age, bio }, id)
+        .then(async (user) => {
+            return res.json({
+                success: true,
+                error: null,
+                data: {
+                    id: user.id.toString()
+                }
+            });
         })
         .catch(error => {
             return res.json({

@@ -202,11 +202,11 @@ exports.deleteOrder = (req, res, next) => {
 };
 
 exports.getListOrders = (req, res, next) => {
-    const { user_id } = req.query;
-    OrderModel.find({ user_id: user_id })
+    const { user_id, status = 1 } = req.query;    
+    OrderModel.find({ user_id: user_id }, status)
         .then(async (listOrder) => {
             console.log(listOrder);
-
+            
             const listFilterOder = [];
             listOrder.forEach(element => {
                 const isCheck = listFilterOder.findIndex(el => element.id === el.id);
@@ -241,11 +241,13 @@ exports.getListOrders = (req, res, next) => {
                 success: true,
                 error: null,
                 data: {
-                    list: listOrder
+                    list: listFilterOder
                 }
             });
         })
         .catch(error => {
+            console.log(error);
+            
             return res.json({
                 success: false,
                 data: null,
@@ -327,7 +329,13 @@ exports.getListAllOrdersDetroy = (req, res, next) => {
                 }
 
             });
-            return res.json(listFilterOder);
+            return res.json({
+                success: false,
+                data: {
+                    list: listFilterOder
+                },
+                error: error
+            });
         })
         .catch(error => {
             return res.json({
@@ -339,6 +347,57 @@ exports.getListAllOrdersDetroy = (req, res, next) => {
 };
 
 exports.getListAllOrdersReview = (req, res, next) => {
+    OrderModel.findProductReview()
+        .then(async (listOrder) => {
+            const listFilterOder = [];
+            listOrder.forEach(element => {
+                const isCheck = listFilterOder.findIndex(el => element.id === el.id);
+                element = helperModel.convertLinkStaticObj(element, "avatar");
+                const { price, quantity, title, sales, picture } = element;
+                element.orderId = element.id;
+                element.orderDate = element.date;
+                element.productName = element.title;
+                element.customerName = element.name;
+                element.reviewText = element.review;
+                element.rating = 4;
+                delete element.price;
+                delete element.quantity;
+                delete element.title;
+                delete element.sales;
+                const newObj = { price, quantity, title, sales, picture };
+                element.picture = helperModel.convertLinkStaticObj(newObj, "picture");;
+                if (isCheck !== 0 || !isCheck) {
+                    element.prices_order = parseInt(price ?? 0);
+                    element.sales_order = parseInt(sales ?? 0);
+                    element.products = [
+                        newObj
+                    ]
+                    listFilterOder.push(element);
+                }
+                else {
+                    listFilterOder[isCheck].prices_order = (parseInt(listFilterOder[isCheck].prices_order) ?? 0) + parseInt(price ?? 0);
+                    listFilterOder[isCheck].sales_order = (parseInt(listFilterOder[isCheck].sales_order) ?? 0) + parseInt(sales ?? 0);
+                    listFilterOder[isCheck].products.push(newObj);
+                }
+
+            });
+
+            return res.json({
+                success: true,
+                data:listFilterOder,
+                error: error
+            });
+        })
+        .catch(error => {
+            return res.json({
+                success: false,
+                data: null,
+                error: error
+            });
+        });
+};
+
+exports.getListAllOrdersReviewAdmin = (req, res, next) => {
     OrderModel.findProductReview()
         .then(async (listOrder) => {
             const listFilterOder = [];
@@ -423,8 +482,6 @@ exports.getListAllOrders = (req, res, next) => {
             });
         })
         .catch(error => {
-            console.log(error);
-
             return res.json({
                 success: false,
                 data: null,
