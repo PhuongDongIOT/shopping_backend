@@ -1,4 +1,4 @@
-    const path = require('path');
+const path = require('path');
 const express = require('express');
 const bodyParser = require('body-parser');
 const session = require('express-session');
@@ -47,17 +47,6 @@ app.use(
 );
 app.use(flash());
 app.post('/create-order', auth(), shopController.postOrder);
-  app.get('/reviews', (req, res) => {
-    res.json([{
-      orderId: "1234567",
-      orderDate: "1234567",
-      customerName: "23456789",
-      productName: "23456789",
-      customerName: "23456789",
-      reviewText: "23456789",
-      rating: 4
-    }])
-  })
 app.use('/admin', adminRoutes);
 app.use(shopRoutes);
 app.use(authRoutes);
